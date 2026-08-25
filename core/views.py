@@ -63,6 +63,7 @@ class IndividualPrescriptionView(LoginRequiredMixin, View):
 class PrescriptionView(LoginRequiredMixin, View):
     def post(self, request):
         form_data=PrescriptionForm(request.POST)
+        data=Prescription.objects.filter(user=request.user)
         if form_data.is_valid():
             age=form_data.cleaned_data['age']
             condition=form_data.cleaned_data['condition']
