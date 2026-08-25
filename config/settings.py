@@ -27,7 +27,13 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-GEMINI_API_KEY="KASNDASLDSAD"
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+GEMINI_API_KEY=os.environ.get("GEMINI_API_KEY", "KASNDASLDSAD")
+LOGIN_URL = 'login'
 # Application definition
 
 INSTALLED_APPS = [
