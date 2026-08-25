@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .forms import RegisterForm, LoginForm, PrescriptionForm
 from django.views import View
 from django.contrib.auth.models import User
@@ -6,6 +6,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from .models import Prescription
+from services.response import final_response
 
 class RegisterView(View):
     def get(self, request):
@@ -50,12 +51,27 @@ def LogoutView(request):
 class HomeView(View):
     def get(self, request):
         data=Prescription.objects.filter(user=request.user)
-        return render(request, 'home.html', {'data':data})
+        form=PrescriptionForm()
+        return render(request, 'home.html', {'data':data, 'form':form})
 
+class IndividualPrescriptionView(View):
+    def get(self, request, pk):
+        data=get_object_or_404(Prescription, user=request.user, id=pk)
+        return render(request, 'individual.html', {'data':data})
+
+class PrescriptionView(View):
     def post(self, request):
         form_data=PrescriptionForm(request.POST)
         if form_data.is_valid():
             age=form_data.cleaned_data['age']
             condition=form_data.cleaned_data['condition']
             prior=form_data.cleaned_data['prior_medical_history']
-
+            data=form_data.save(commit=False)
+            ai_response=final_response(age=age, condition=condition, prior_conditions=prior)
+            data.drug_prescription=ai_response.get('prescription')
+            data.analysis=ai_response.get('condition_analysis')
+            data.user=request.user
+            data.save()
+            return render(request, 'individual.html', {'data':data})
+        return render(request, 'home.html', {'data':data, 'form':form_data, 'form_err':form_data.errors})
+        
