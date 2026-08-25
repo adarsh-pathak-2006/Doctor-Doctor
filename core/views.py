@@ -39,7 +39,7 @@ class LoginView(View):
             user=authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect('shortner_home')
+                return redirect('home')
             return render(request, 'login.html', { 'form':form_data, 'user_err':'user does not exist try registration first' })
         return render(request, 'login.html', { 'form':form_data, 'form_err':form_data.errors })
 
