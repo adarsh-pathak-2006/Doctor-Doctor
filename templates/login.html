@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Login{% endblock title %}
+
+{% block body %}
+
+<form action="{% url "login" %}" method='POST'>
+    {{form}}
+    <button type='submit'>Login</button>
+</form>
+
+{% if form_err %}
+{{form_err}}
+{% endif %}
+
+{% if user_err %}
+{{user_err}}
+{% endif %}
+
+<a href="{% url "register" %}">new user click here</a>
+
+{% endblock body %}

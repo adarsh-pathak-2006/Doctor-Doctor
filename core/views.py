@@ -55,8 +55,8 @@ class HomeView(View):
         return render(request, 'home.html', {'data':data, 'form':form})
 
 class IndividualPrescriptionView(View):
-    def get(self, request, pk):
-        data=get_object_or_404(Prescription, user=request.user, id=pk)
+    def get(self, request, id):
+        data=get_object_or_404(Prescription, user=request.user, id=id)
         return render(request, 'individual.html', {'data':data})
 
 class PrescriptionView(View):

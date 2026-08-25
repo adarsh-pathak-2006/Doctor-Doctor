@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock title %}
+
+{% block body %}
+
+{% for d in data %}
+
+{{d.condition}}
+{{d.analysis}}
+{{d.created_on}}
+
+<a href="{% url "individual" d.id %}">view-more</a>
+
+{% endfor %}
+
+<form action="{% url "create_prescription" %}" method='POST'>
+
+    {{form}}
+    <button type='submit'>prescribe</button>
+
+</form>
+
+{% if form_err %}
+{{form_err}}
+{% endif %}
+
+{% endblock body %}
