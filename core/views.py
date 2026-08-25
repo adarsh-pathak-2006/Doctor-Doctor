@@ -1,10 +1,11 @@
 from django.shortcuts import render, redirect
-from .forms import RegisterForm, LoginForm
+from .forms import RegisterForm, LoginForm, PrescriptionForm
 from django.views import View
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+from .models import Prescription
 
 class RegisterView(View):
     def get(self, request):
@@ -45,3 +46,16 @@ class LoginView(View):
 def LogoutView(request):
     logout(request)
     return redirect('login')
+
+class HomeView(View):
+    def get(self, request):
+        data=Prescription.objects.filter(user=request.user)
+        return render(request, 'home.html', {'data':data})
+
+    def post(self, request):
+        form_data=PrescriptionForm(request.POST)
+        if form_data.is_valid():
+            age=form_data.cleaned_data['age']
+            condition=form_data.cleaned_data['condition']
+            prior=form_data.cleaned_data['prior_medical_history']
+
