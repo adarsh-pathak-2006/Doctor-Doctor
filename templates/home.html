@@ -4,6 +4,8 @@
 
 {% block body %}
 
+<a href="{% url "logout" %}">click here to logout</a>
+
 {% for d in data %}
 
 {{d.condition}}
