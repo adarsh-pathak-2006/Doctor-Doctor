@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from .models import Prescription
 from services.response import final_response
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 class RegisterView(View):
     def get(self, request):
@@ -48,18 +49,18 @@ def LogoutView(request):
     logout(request)
     return redirect('login')
 
-class HomeView(View):
+class HomeView(LoginRequiredMixin, View):
     def get(self, request):
         data=Prescription.objects.filter(user=request.user)
         form=PrescriptionForm()
         return render(request, 'home.html', {'data':data, 'form':form})
 
-class IndividualPrescriptionView(View):
+class IndividualPrescriptionView(LoginRequiredMixin, View):
     def get(self, request, id):
         data=get_object_or_404(Prescription, user=request.user, id=id)
         return render(request, 'individual.html', {'data':data})
 
-class PrescriptionView(View):
+class PrescriptionView(LoginRequiredMixin, View):
     def post(self, request):
         form_data=PrescriptionForm(request.POST)
         if form_data.is_valid():
