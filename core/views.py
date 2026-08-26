@@ -8,7 +8,10 @@ from django.db.models import Q
 from .models import Prescription
 from services.response import final_response
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.utils.decorators import method_decorator
+from django_ratelimit.decorators import ratelimit
 
+@method_decorator(ratelimit(key='ip', rate='10/m', block=True), name='dispatch')
 class RegisterView(View):
     def get(self, request):
         form=RegisterForm()
@@ -27,6 +30,8 @@ class RegisterView(View):
             return redirect('login')
         return render(request, 'register.html', { 'form':form_data, 'form_err':form_data.errors })
 
+@method_decorator(ratelimit(key='ip', rate='10/m', block=True), name='dispatch')
+@method_decorator(ratelimit(key='post:username', rate='5/m', block=True), name='post')
 class LoginView(View):
     def get(self, request):
         form=LoginForm()
@@ -45,21 +50,26 @@ class LoginView(View):
         return render(request, 'login.html', { 'form':form_data, 'form_err':form_data.errors })
 
 @login_required
+@ratelimit(key='user', rate='10/m', block=True)
 def LogoutView(request):
     logout(request)
     return redirect('login')
 
+@method_decorator(ratelimit(key='user', rate='30/m', block=True), name='dispatch')
 class HomeView(LoginRequiredMixin, View):
     def get(self, request):
         data=Prescription.objects.filter(user=request.user)
         form=PrescriptionForm()
         return render(request, 'home.html', {'data':data, 'form':form})
 
+@method_decorator(ratelimit(key='user', rate='30/m', block=True), name='dispatch')
 class IndividualPrescriptionView(LoginRequiredMixin, View):
     def get(self, request, id):
         data=get_object_or_404(Prescription, user=request.user, id=id)
         return render(request, 'individual.html', {'data':data})
 
+@method_decorator(ratelimit(key='user', rate='5/m', block=True), name='dispatch')
+@method_decorator(ratelimit(key='user', rate='20/d', block=True), name='dispatch')
 class PrescriptionView(LoginRequiredMixin, View):
     def post(self, request):
         form_data=PrescriptionForm(request.POST)
